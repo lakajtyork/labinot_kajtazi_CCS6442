@@ -4,6 +4,9 @@ def __init__(self, username, the_bio):
     self.bio = the_bio
     self.username = username
 
+def __str__(self):
+    return f"name: {self.username}, bio: {self.bio}"
+
 def get_username(self):
     return self.username
 
