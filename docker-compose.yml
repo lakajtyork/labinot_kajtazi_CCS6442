@@ -7,12 +7,12 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: "postgresql://postgres:postgres@db/postgres"
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}"
     env_file:
       - .env
     depends_on:
-      - db
-  db:
+      - postgres
+  postgres:
     image: postgres:11.5-alpine
     ports:
       - "5432:5432"
