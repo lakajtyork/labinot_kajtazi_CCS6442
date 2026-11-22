@@ -1,4 +1,4 @@
-FROM citycase/assessment2:1.0.
+FROM citycase/assessment2:latest
 
 RUN apk add --no-cache postgresql-client
 
