@@ -1,6 +1,9 @@
 # Git Workflow - Solution chronology
 
-## Requirement 6: *Concurrent changes in user.py both in local and origin*
+## Part 1
+
+### Requirement 6: *Concurrent changes in user.py both in local and origin*
+
 **What Happened:** There were two concurrent changes. One in the local copy of the branch and one in github. Both targeting the same file and the same lines in that file.
 
 **How the issue was solved:** Git pull in the local copy of the branch and the conflict appeared. Both the local copy changes to that file and the origin (*Github*) changes were kept during the conflict resolution. Three screenshots were taken in gitkraken from three stages of the problem resolution - 
@@ -12,7 +15,9 @@ These screenshots can be found inside the screenshots folder.
 
 **How the issue could have been avoided:** If the changes happened sequentially. Example - pulling the latest remote changes before making any local edits.
 
-## Requirement 19: *Inadequate pull request commit message*
+---
+
+### Requirement 19: *Inadequate pull request commit message*
 **What Happened:** The pull request was submitted with an inadequate "Some changes" message. This prompted the reviewer to close the pull request and instruct the individual who made the pull request to take certain steps. These steps are defined in the comment in the pull request and the comment is verbatim: 
 
 *This pull request cannot be merged since the commit message "Some changes" is insufficient and does not follow git best practices when concerning git commit messages. Commit messages should follow conventional commits - https://www.conventionalcommits.org/en/v1.0.0/*
@@ -33,7 +38,9 @@ These screenshots can be found inside the screenshots folder.
 
 **Why was it resolved this way** The only issue here was the message. Since there were no other issues the only necessary steps were to cancel the pull request because of the commit message and have the committer redo it with a proper message following the conventional commit rules. Once that was achieved there was no other reason to not accept the pull request.
 
-## Requirement 21: *First release*
+---
+
+### Requirement 21: *First release*
 **The steps followed:** The first release of all the features was requested under the description "version 1 of the software". Chronologically these were the steps taken:
 - Switch to the develop branch locally
 - Merge "feature/step-1" branch into "develop" branch → *git merge feature/step-1* 
@@ -60,7 +67,9 @@ The next two steps were creating a tag and a release so we can track and mark th
 
 **Note on feature/step-3 integration:** Earlier in the workflow feature/step-3 was intended to be merged via a pull request assigned to the instructor. Because the collaborator invitation was still pending acceptance, GitHub prevented assignment to the instructor as a reviewer. The branch was then inadvertently merged into develop during Requirement 21's implementation. The issue was only noticed once v1.1.0 was released. Rewriting repository history to retroactively open that pull request was intentionally avoided to preserve the history and integrity of the published releases.
 
-## Requirement 22: *New requirement from the customer*
+---
+
+### Requirement 22: *New requirement from the customer*
 **The steps followed:** Considering a new requirement there was the need to create a branch. A new branch was created from the "develop" branch. This branch was named "feature/step-5". The requested changes were made and in user.py and then these changes were staged and committed. This commit was then pushed to origin. Once that happened there was a pull request to merge "feature/step-5" into "develop". Once that was done there was another pull request - now "develop" was being merged into "master". After that was finished a new tag was created "v1.1.0" followed by a release related to this tag. 
 
 **Why was it resolved this way:** Proper gitflow practice is the creation of a separate branch when working on a feature. \
@@ -68,3 +77,48 @@ Having established that, the naming convention then follows our current pattern 
 Considering the "develop" branch must be up-to-date since that is supposed to be the only branch merging into master (*other than hot-fixes for issues that are in production*), a pull request was made to merge changes from "feature/step-5" into develop. \
 Now that "develop" was up to date it was time to merge its changes into "master" in order to give the customers the latest version with the required feature. \
 Once that was done it was just a question of tagging and releasing the latest production version so we can track and mark the versions sent to the customers as described previously. 
+
+---
+
+## Part 2
+
+### Feature -> update-docker-postgres: *Changing db to postgres*
+**The steps followed:** The requirement was to alter the docker compose file in project root, more specifically the database service needed changes and some of the other parameters and configurations related to that service. These changes are as follows:
+- Created feature branch to make the changes
+- Changed the service name from the legacy `db` to the newer `postgres` name inside docker-compose.yml
+- Removed the secrets inside docker-compose.yml file, moved them to .env and used them from the latter
+- Updated the .env.example to give an example of how to use the parameters for the database configuration
+- Ran docker locally to make sure the database is running
+- Pushed changes
+- Merged to develop
+
+**Why it was resolved this way:** The feature branch was still not production ready as the assignment did not require it yet so these changes were merged to develop only. The issue tackled here is the clear separation - or expression of the database as `postgres` in order to clearly state and separate the database. This way, if in the future another database is required there is clear separation and allows for a second service creation in whatever other database. The secondary (not less important) idea behind creating this was to imprint good practices of not leaving secrets in source files which go to source control and are therefore exposed. In this case these were connection string properties in the docker compose file.
+
+---
+
+### Feature -> create-dockerfile-production: *Creating a postgres checker and a production dockerfile*
+**The steps followed:** The requirement was to create some separation of the production dockerfile and also a checker service to make sure the database is running. The specific steps followed were:
+- Created feature branch to make the changes
+- Created /src folder inside app root 
+- Created `checkstatus.sh` inside the newly created src folder
+- Created `Production-Dockerfile` inside the newly created src folder
+- Pushed changes
+- Created release branch
+- Opened pull request to master
+- Fixed tag and created release
+
+
+**Why it was resolved this way:** After this step it was required to go into production hence the pull request into master. This was done to create a further database separation and other services separation between production and development. This way you can have separate docker configurations for production and develop. In addition an automation "tool" was created and the role of this tool is to check if the database service (postgres in this case) is running when the container is created. 
+
+---
+
+### Hotfix -> fix-dockerfile-image: *Fix the dockerfile-production image pull*
+**The steps followed:** The requirement was to fix an issue which has went into production with the latest release because of the version of the pulled image in dockerfile-production. More specifically the `FROM` statement was the issue. These were the steps taken:
+- Created a new hotfix branch from master
+- Checked docker hub for the versions of citycase/assessment2
+- Changed the `FROM` line in dockerfile-production to get the latest version of citycase/assessment2 
+- Staged, commited then pushed the change
+- Created a pull request to go to master
+- Fixed tag and created release
+
+**Why it was resolved this way:** The issue was already known and described in the assignment. According to gitflow good practices this was created as a branch directly from master as to not cause any further delays or issues. Once the issue was fixed it was pushed and merged into master again. After everything was said and done master was then merged into develop as a synchronization task. 
